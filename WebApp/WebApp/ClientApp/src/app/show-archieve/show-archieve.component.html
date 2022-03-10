@@ -1,0 +1,46 @@
+<select [(ngModel)]="selectedMonth">
+    <option [value]="null">Не выбрано</option>
+    <option *ngFor="let item of months" [value]="item.id">{{item.name}}</option>
+  </select>
+
+  <select [(ngModel)]="selectedYear">
+    <option [value]="null">Не выбрано</option>
+    <option *ngFor="let item of years" [value]="item">{{item}}</option>
+  </select>
+  
+  <button class="btn btn-sm btn-primary" (click)="loadWeather()">ПоказатьПогоду</button>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <td>Дата</td>
+            <td>Московское время</td>
+            <td>Температура</td>
+            <td>Влажность воздуха</td>
+            <td>Точка росы</td>
+            <td>Давление мм рт ст</td>
+            <td>Направление ветра</td>
+            <td>Скорость ветра</td>
+            <td>Облачность</td>
+            <td>Нижняя граница обблачности</td>
+            <td>Горизонтальная видимость</td>
+            <td>Погодные явления</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let w of infWeather">
+            <td>{{w?.dateOfTaking}}</td>
+            <td>{{w?.timeOfTaking}}</td>
+            <td>{{w?.temperature}}</td>
+            <td>{{w?.humidity}}</td>
+            <td>{{w?.dewPoint}}</td>
+            <td>{{w?.pressure}}</td>
+            <td>{{w?.windDirection}}</td>
+            <td>{{w?.windSpeed}}</td>
+            <td>{{w?.cloudiness}}</td>
+            <td>{{w?.cloudBase}}</td>
+            <td>{{w?.horizontalVisibility}}</td>   
+            <td>{{w?.weatherCondition}}</td>          
+        </tr>
+    </tbody>
+</table>
+
