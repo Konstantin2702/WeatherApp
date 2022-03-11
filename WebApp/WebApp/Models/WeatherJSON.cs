@@ -1,4 +1,6 @@
-﻿namespace WebApp.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApp.Models
 {
     public class WeatherJSON
     {
@@ -27,7 +29,7 @@
         [Range(0, int.MaxValue)]
         public string CloudBase { get; set; }
 
-         [Range(0, int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public string HorizontalVisibility { get; set; }
 
         public string WeatherCondition { get; set; }

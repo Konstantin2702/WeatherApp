@@ -29,7 +29,6 @@ namespace WebApp.Controllers
         [HttpGet]
         public IEnumerable<FileInf> Get()
         {
-            List<Product> products = new List<Product>();
             string path = "Source";
             string[] fileNames = _workWithFiles.GetFileNamesFromDir(path);
             IEnumerable<FileInf> files = _workWithFiles.AddFilesNotInDB(fileNames, _db);
