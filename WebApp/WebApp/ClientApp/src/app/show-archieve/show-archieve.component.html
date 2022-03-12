@@ -1,3 +1,4 @@
+
 <select [(ngModel)]="selectedMonth">
     <option [value]="null">Не выбрано</option>
     <option *ngFor="let item of months" [value]="item.id">{{item.name}}</option>
@@ -9,24 +10,24 @@
   </select>
   
   <button class="btn btn-sm btn-primary" (click)="loadWeather()">ПоказатьПогоду</button>
-<table class="table table-striped">
+<table class="table table-striped" id="weather_table">
     <thead>
         <tr>
             <td>Дата</td>
-            <td>Московское время</td>
+            <td>Dремя</td>
             <td>Температура</td>
-            <td>Влажность воздуха</td>
+            <td>Влажность</td>
             <td>Точка росы</td>
-            <td>Давление мм рт ст</td>
+            <td>Давление</td>
             <td>Направление ветра</td>
             <td>Скорость ветра</td>
             <td>Облачность</td>
-            <td>Нижняя граница обблачности</td>
-            <td>Горизонтальная видимость</td>
+            <td>Граница облачности</td>
+            <td>Видимость</td>
             <td>Погодные явления</td>
         </tr>
     </thead>
-    <tbody>
+    <tbody >
         <tr *ngFor="let w of infWeather">
             <td>{{w?.dateOfTaking}}</td>
             <td>{{w?.timeOfTaking}}</td>
@@ -39,8 +40,10 @@
             <td>{{w?.cloudiness}}</td>
             <td>{{w?.cloudBase}}</td>
             <td>{{w?.horizontalVisibility}}</td>   
-            <td>{{w?.weatherCondition}}</td>          
+            <td >{{w?.weatherCondition}}</td>          
         </tr>
     </tbody>
 </table>
-
+<p>{{countOfPages}}</p>
+<button class="btn btn-sm btn-primary" (click)="changePageDown()" [disabled]="isDownPage" style=" position: absolute;right:7% ">Назад</button>
+<button class="btn btn-sm btn-primary" (click)="changePageUp()" [disabled]="isUpPage" style=" position: absolute; right:0% ">Вперед</button>

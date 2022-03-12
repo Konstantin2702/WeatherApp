@@ -12,7 +12,14 @@ export class ShowArchieveComponent implements OnInit {
   infWeather: Weather[];
   tableMode: boolean = true;  
   files: FileInfo[];
-  jan: string = "привет";
+  countOfElements: number;
+  countOfPages: number;
+  countOfElementsOnPAge: number = 7;
+  pageNumber: number = 1;
+
+  isUpPage: boolean = true;
+  isDownPage: boolean = true;
+
   months = [
   { id: 1, name: 'Январь' },
   { id: 2, name: 'Февраль' },
@@ -42,11 +49,72 @@ export class ShowArchieveComponent implements OnInit {
       this.selectedMonth = 0;
     if(this.selectedYear === null)
     this.selectedYear = 0;
-    this.dataService.getWeather(this.selectedMonth, this.selectedYear)
+    this.calcPages();
+    this.dataService.getWeather(this.selectedMonth, this.selectedYear, this.pageNumber, this.countOfElementsOnPAge)
         .subscribe((data: any) => {
           this.infWeather = data; 
         } 
           );
-         
+      
+    this.isUpPage = false;
+    this.pageNumber = 1;
+    
 }
+    calcPages(){
+      //получение количества записей
+    this.dataService.getCountOfElementsToShow(this.selectedMonth, this.selectedYear)
+    .subscribe((data: any) => {
+      this.countOfElements = data; 
+      this.countOfPages = this.countOfElements / this.countOfElementsOnPAge;
+      this.countOfPages = Math.floor(this.countOfPages);
+      if(this.countOfPages * this.countOfElementsOnPAge < this.countOfElements){
+        this.countOfPages++;
+    } 
+  }
+      );     
+    }
+  changePageUp(){
+    debugger
+    if(this.pageNumber === this.countOfPages - 1){
+      this.isUpPage = true;
+      this.pageNumber++;
+    }
+    else if (this.pageNumber === this.countOfPages){
+      this.isDownPage = false;
+      this.isUpPage = true;
+    }
+    else{
+      this.pageNumber++;
+      this.isDownPage = false;
+    }
+    this.dataService.getWeather(this.selectedMonth, this.selectedYear, this.pageNumber, this.countOfElementsOnPAge)
+        .subscribe((data: any) => {
+          this.infWeather = data; 
+        } 
+          );
+      
+
+  }
+
+  changePageDown(){
+    debugger
+    if(this.pageNumber === 2){
+      this.isDownPage = true;
+      this.pageNumber--;
+    }
+    else if (this.pageNumber === 1){
+      this.isDownPage = true;
+      this.isUpPage = false;
+    }
+    else
+    {
+      this.pageNumber--;
+      this.isUpPage = false;
+    }
+    this.dataService.getWeather(this.selectedMonth, this.selectedYear, this.pageNumber, this.countOfElementsOnPAge)
+        .subscribe((data: any) => {
+          this.infWeather = data; 
+        } 
+          );
+  }
 }

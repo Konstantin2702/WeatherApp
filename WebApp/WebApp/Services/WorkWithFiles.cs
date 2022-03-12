@@ -11,40 +11,42 @@ namespace WebApp.Services
 {
     public class WorkWithFiles : IWorkWithFiles
     {
-        public void CheckDownloadedFile(FileInf fileInfo, WeatherContext db)
+        public string CheckDownloadedFile(string fileName, WeatherContext db)
         {
-            SavedFiles savedFile = new SavedFiles { FileName = fileInfo.FileNames };
-            var checkFile = db.SavedFiles.Where(f => f.FileName.Equals(fileInfo.FileNames));
+            SavedFiles savedFile = new SavedFiles { FileName = fileName };
+            var checkFile = db.SavedFiles.Where(f => f.FileName.Equals(fileName));
             if (checkFile.Count() == 0)
             {
-                 db.SavedFiles.Add(savedFile);
-                 db.SaveChanges();
+                db.SavedFiles.Add(savedFile);
+                db.SaveChanges();
+                return "";
+            }
+            else
+            {
+                return "Такой файл уже суцществует";
             }
         }
 
         public string[] GetFileNamesFromDir(string path)
         {
-           string[] fileNames = Directory.GetFiles(path);
-           List<string> filesToReturn = new List<string>();
+            string[] fileNames = Directory.GetFiles(path);
+            List<string> filesToReturn = new List<string>();
 
-            foreach(string str in fileNames)
+            foreach (string str in fileNames)
             {
                 string tempString = str.Split('\\')[1];
                 filesToReturn.Add(tempString);
             }
-           return filesToReturn.ToArray();
+            return filesToReturn.ToArray();
         }
 
-        public  void SaveWeatherInDB(WeatherContext db, string fileName)
+        public void SaveWeatherInDB(WeatherContext db, MemoryStream stream)
         {
             List<WeatherInfo> weatherInfos = new List<WeatherInfo>();
             IWorkbook hssfwb;
-            using (FileStream file = new FileStream(
-                   $"Source/{fileName}",
-                   FileMode.Open, FileAccess.Read))
-            {
-                hssfwb = WorkbookFactory.Create(file);
-            }
+
+            hssfwb = WorkbookFactory.Create(stream);
+
 
             foreach (ISheet sheet in hssfwb)
             {
@@ -96,12 +98,20 @@ namespace WebApp.Services
                         weatherInfo.HorizontalVisibility = int.TryParse(sheetRow.GetCell(10).ToString(), out var h) ? h : 0;
 
                         weatherInfos.Add(weatherInfo);
-                        
+
+                        var checkDate = db.WeatherInfos.Where(w => w.DateOfTaking == weatherInfo.DateOfTaking && w.TimeOfTaking == weatherInfo.TimeOfTaking);
+                        if(checkDate.Count() > 0)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            db.WeatherInfos.Add(weatherInfo);
+                        }
                     }
                 }
             }
-           db.WeatherInfos.AddRange(weatherInfos);
-           db.SaveChanges();
+            db.SaveChanges();
         }
 
         public IEnumerable<FileInf> AddFilesNotInDB(string[] fileNames, WeatherContext db)
@@ -120,11 +130,54 @@ namespace WebApp.Services
             return files;
         }
 
-        public IEnumerable<WeatherJSON> GetFilteredWeather(int month, int year, WeatherContext db)
+        public IEnumerable<WeatherJSON> GetFilteredWeather(int month, int year, WeatherContext db, int first, int last)
+        {
+            List<WeatherJSON> weatherToSend = new List<WeatherJSON>();
+            if (month != 0 && year != 0)
+            {
+                List<WeatherJSON> weather = db.WeatherInfos
+                   .Where(w => w.DateOfTaking.Year == year && w.DateOfTaking.Month == month)
+                   .OrderBy(w => w.DateOfTaking.Day)
+                   .ThenBy(w => w.TimeOfTaking)
+                   .Select(w => new WeatherJSON
+                   {
+                       DateOfTaking = w.DateOfTaking.ToShortDateString(),
+                       TimeOfTaking = w.TimeOfTaking.ToString().Substring(0, 8),
+                       WindSpeed = w.WindSpeed.ToString(),
+                       CloudBase = w.CloudBase.ToString(),
+                       DewPoint = w.DewPoint.ToString(),
+                       WindDirection = w.WindDirection.ToString(),
+                       Cloudiness = w.Cloudiness.ToString(),
+                       HorizontalVisibility = w.HorizontalVisibility.ToString(),
+                       Humidity = w.Humidity.ToString(),
+                       Pressure = w.Pressure.ToString(),
+                       Temperature = w.Temperature.ToString(),
+                       WeatherCondition = w.WeatherCondition.Text
+                   })
+                   .ToList();
+                for (int i = 0; i < weather.Count(); i++)
+                {
+                    if (i >= first && i <= last)
+                    {
+                        weatherToSend.Add(weather[i]);
+                    }
+                    else if (i > last)
+                        break;
+
+                }
+                return weatherToSend;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public int GetCountOfElements(int month, int year, WeatherContext db)
         {
             if (month != 0 && year != 0)
             {
-                IEnumerable<WeatherJSON> weather = db.WeatherInfos
+                List<WeatherJSON> weather = db.WeatherInfos
                    .Where(w => w.DateOfTaking.Year == year && w.DateOfTaking.Month == month)
                    .Select(w => new WeatherJSON
                    {
@@ -142,12 +195,12 @@ namespace WebApp.Services
                        WeatherCondition = w.WeatherCondition.Text
                    })
                    .ToList();
-            return weather;
-        }
-            else
-            {
-                return null;
+
+                return weather.Count();
             }
+            else
+                return 0;
         }
+
     }
 }

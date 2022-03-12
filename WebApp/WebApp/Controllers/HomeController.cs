@@ -14,7 +14,7 @@ using WebApp.Services;
 
 namespace WebApp.Controllers
 {
-    [ApiController] 
+    [ApiController]
     public class HomeController : ControllerBase
     {
         private readonly IWorkWithFiles _workWithFiles;
@@ -30,35 +30,81 @@ namespace WebApp.Controllers
         public IEnumerable<FileInf> Get()
         {
             string path = "Source";
-            string[] fileNames = _workWithFiles.GetFileNamesFromDir(path);
-            IEnumerable<FileInf> files = _workWithFiles.AddFilesNotInDB(fileNames, _db);
-            return files;
+            //string[] fileNames = _workWithFiles.GetFileNamesFromDir(path);
+            //IEnumerable<FileInf> files = _workWithFiles.AddFilesNotInDB(fileNames, _db);
+            return null;
         }
 
-        [Route("api/weather")]
+
+
+        //сразу сделать проверку на существование всех файлов и обработать 
+        [Route("api/weather/SendFiles")]
         [HttpPost]
-        public FileInf Post(FileInf fileInfo)
-        {
+        public string SendFilesName(List<IFormFile> files)
+        { 
             string status = "Загружено";
-            try
-            {                       
-                _workWithFiles.SaveWeatherInDB(_db, fileInfo.FileNames);
-                _workWithFiles.CheckDownloadedFile(fileInfo, _db);
-               
-            }
-            catch (Exception ex)
+            List<StringBuilder> errors = new List<StringBuilder>();
+            foreach(IFormFile file in files)
             {
-                status = ex.Message;
+                errors.Add(new StringBuilder(file.FileName));
             }
-            fileInfo.Status = status;
-            return fileInfo;
+            if (files == null && !files[0].FileName.EndsWith("xlsx"))
+            { 
+                status = "Wrong type of file";
+                return status;
+             }
+            else
+            {           
+                    int i = 0;
+                    bool isException ;
+                    foreach (IFormFile file in files)
+                    {
+                    using (var stream = new MemoryStream())
+                    {
+                        isException = false;
+                        try
+                        {
+                            file.CopyTo(stream);
+                            _workWithFiles.SaveWeatherInDB(_db, stream);
+                        }
+                        catch (Exception ex)
+                        {
+                            errors[i].Append("\tFailed");
+                            isException = true;
+                        }
+                        if(!isException)
+                        {
+                            errors[i].Append("\tSucсessfully");
+                        }
+                        i++;
+                    }
+                }
+                
+            }
+            StringBuilder errorsToSend = new StringBuilder();
+            foreach(StringBuilder str in errors)
+            {
+                errorsToSend.Append(str + ";   ");
+            }
+            return JsonSerializer.Serialize(new {Text = errorsToSend.ToString()});
+           
+
         }
 
         [Route("api/weather/GetWeather")]
         [HttpGet]
-        public IEnumerable<WeatherJSON> GetWeather(int month, int year)
+        public IEnumerable<WeatherJSON> GetWeather(int month, int year, int pageNumber, int countOFElementsOnPage)
         {
-           return  _workWithFiles.GetFilteredWeather(month, year, _db);
+            int firstElementToShow = (pageNumber - 1) * countOFElementsOnPage;
+            int lastElementToShow = firstElementToShow + countOFElementsOnPage - 1;
+           return  _workWithFiles.GetFilteredWeather(month, year, _db, firstElementToShow, lastElementToShow);
+        }
+
+        [Route("api/weather/GetCountWeather")]
+        [HttpGet]
+        public int GetCountWeather(int month, int year)
+        {
+            return _workWithFiles.GetCountOfElements(month, year, _db);
         }
     }
 }

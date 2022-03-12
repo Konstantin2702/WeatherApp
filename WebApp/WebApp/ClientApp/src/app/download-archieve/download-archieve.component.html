@@ -1,22 +1,13 @@
 <h1>Список моделей</h1>
-<table *ngIf="tableMode; else create" class="table table-striped">
-    <thead>
-        <tr>
-            <td>Название файла</td>
-            <td></td>
-            <td>Статус</td>
-
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let f of files">
-                <td>{{f?.fileNames}}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary" (click)="saveinDb(f)"
-                    [disabled]="f.isLoaded">Загрузить</button>
-                </td>
-                <td>{{f?.status}}</td>              
-        </tr>
-    </tbody>
-</table>
- 
+<input
+    multiple
+    style="display: none"
+    #fileInput
+    type="file" (change)="onFileSelected($event)" >
+<button class="btn btn-sm btn-primary" type="button" (click)="fileInput.click()">Pick File</button>
+<button class="btn btn-sm btn-primary" type="button" (click)="onUpload()">Upload</button>
+<h1>Выбранные файлы</h1>
+<ul *ngFor="let f of selectedFile">
+    <li>{{f.name}}</li>
+</ul>
+<p>{{status}}</p>
