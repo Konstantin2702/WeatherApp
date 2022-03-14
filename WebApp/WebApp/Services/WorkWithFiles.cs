@@ -11,34 +11,7 @@ namespace WebApp.Services
 {
     public class WorkWithFiles : IWorkWithFiles
     {
-        public string CheckDownloadedFile(string fileName, WeatherContext db)
-        {
-            SavedFiles savedFile = new SavedFiles { FileName = fileName };
-            var checkFile = db.SavedFiles.Where(f => f.FileName.Equals(fileName));
-            if (checkFile.Count() == 0)
-            {
-                db.SavedFiles.Add(savedFile);
-                db.SaveChanges();
-                return "";
-            }
-            else
-            {
-                return "Такой файл уже суцществует";
-            }
-        }
 
-        public string[] GetFileNamesFromDir(string path)
-        {
-            string[] fileNames = Directory.GetFiles(path);
-            List<string> filesToReturn = new List<string>();
-
-            foreach (string str in fileNames)
-            {
-                string tempString = str.Split('\\')[1];
-                filesToReturn.Add(tempString);
-            }
-            return filesToReturn.ToArray();
-        }
 
         public void SaveWeatherInDB(WeatherContext db, MemoryStream stream)
         {
@@ -114,21 +87,6 @@ namespace WebApp.Services
             db.SaveChanges();
         }
 
-        public IEnumerable<FileInf> AddFilesNotInDB(string[] fileNames, WeatherContext db)
-        {
-            List<FileInf> files = new List<FileInf>();
-            StringBuilder stringBuilder = new StringBuilder();
-
-            foreach (string str in fileNames)
-            {
-                var file = db.SavedFiles.Where(f => f.FileName.Equals(str));
-                if (file.Count() == 0)
-                {
-                    files.Add(new FileInf { FileNames = str, Status = "" });
-                }
-            }
-            return files;
-        }
 
         public IEnumerable<WeatherJSON> GetFilteredWeather(int month, int year, WeatherContext db, int first, int last)
         {

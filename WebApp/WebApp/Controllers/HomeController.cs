@@ -25,19 +25,8 @@ namespace WebApp.Controllers
             _db = db;
         }
 
-        [Route("api/weather")]
-        [HttpGet]
-        public IEnumerable<FileInf> Get()
-        {
-            string path = "Source";
-            //string[] fileNames = _workWithFiles.GetFileNamesFromDir(path);
-            //IEnumerable<FileInf> files = _workWithFiles.AddFilesNotInDB(fileNames, _db);
-            return null;
-        }
 
-
-
-        //сразу сделать проверку на существование всех файлов и обработать 
+        
         [Route("api/weather/SendFiles")]
         [HttpPost]
         public string SendFilesName(List<IFormFile> files)

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { DataService } from '../data.service';
-import { FileInfo } from '../FileInfo';
+
 
 @Component({
   selector: 'app-download',
@@ -10,13 +10,11 @@ import { FileInfo } from '../FileInfo';
 })
 export class DownloadArchieveComponent {         
   tableMode: boolean = true;        
-    files: FileInfo[];
     selectedFile: File[] = null;
     status: string;
+    isLoading:boolean = false;
     constructor(private dataService: DataService, private http:HttpClient) {}
-  ngOnInit() {
-    this.loadFiles();    // загрузка данных при старте компонента 
-    
+  ngOnInit() { 
 }
 
 onFileSelected(event) {
@@ -25,6 +23,7 @@ onFileSelected(event) {
 
 onUpload() {
   this.status = "";
+  this.isLoading = true;
   const fd = new FormData();
 
 
@@ -34,27 +33,8 @@ onUpload() {
   this.http.post('api/weather/SendFiles', fd)
       .subscribe((data: any) => {
           this.status = data.Text;
+          this.isLoading = false;
       });
     }
-
-
-
-// получаем данные через сервис
-loadFiles() {
-    this.dataService.getFiles()
-        .subscribe((data: FileInfo[]) => {
-          this.files = data; 
-        } 
-          );
-
-}
-saveinDb(f: FileInfo) {
-    this.dataService.saveFile(f)
-        .subscribe((data: FileInfo) => 
-        {
-           f.status = data.status;
-           f.isLoaded=true;    
-        });
-      }
-}
+  }
 

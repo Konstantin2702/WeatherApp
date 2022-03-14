@@ -8,9 +8,11 @@
     <option [value]="null">Не выбрано</option>
     <option *ngFor="let item of years" [value]="item">{{item}}</option>
   </select>
-  
+
   <button class="btn btn-sm btn-primary" (click)="loadWeather()">ПоказатьПогоду</button>
-<table class="table table-striped" id="weather_table">
+  <button class="btn btn-sm btn-primary" (click)="changePageDown()" [disabled]="isDownPage" style=" position: absolute;right:7% ">Назад</button>
+<button class="btn btn-sm btn-primary" (click)="changePageUp()" [disabled]="isUpPage" style=" position: absolute; right:0% ">Вперед</button>
+<table class="table table-striped" id="weather_table" >
     <thead>
         <tr>
             <td>Дата</td>
@@ -44,6 +46,4 @@
         </tr>
     </tbody>
 </table>
-<p>{{countOfPages}}</p>
-<button class="btn btn-sm btn-primary" (click)="changePageDown()" [disabled]="isDownPage" style=" position: absolute;right:7% ">Назад</button>
-<button class="btn btn-sm btn-primary" (click)="changePageUp()" [disabled]="isUpPage" style=" position: absolute; right:0% ">Вперед</button>
+<p style="position: absolute;right:5% ">{{pageNumber}} из {{countOfPages}}</p>

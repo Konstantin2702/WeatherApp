@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
-import { FileInfo } from '../FileInfo';
 import { WeatherJSON as Weather } from '../WeatherInfo';
 @Component({
   selector: 'app-show-archieve',
@@ -11,10 +10,9 @@ export class ShowArchieveComponent implements OnInit {
 
   infWeather: Weather[];
   tableMode: boolean = true;  
-  files: FileInfo[];
   countOfElements: number;
   countOfPages: number;
-  countOfElementsOnPAge: number = 7;
+  countOfElementsOnPAge: number = 5;
   pageNumber: number = 1;
 
   isUpPage: boolean = true;
@@ -45,6 +43,7 @@ export class ShowArchieveComponent implements OnInit {
   }
 
   loadWeather() {
+
     if(this.selectedMonth === null)
       this.selectedMonth = 0;
     if(this.selectedYear === null)

@@ -1,4 +1,3 @@
-<h1>Список моделей</h1>
 <input
     multiple
     style="display: none"
@@ -6,8 +5,12 @@
     type="file" (change)="onFileSelected($event)" >
 <button class="btn btn-sm btn-primary" type="button" (click)="fileInput.click()">Pick File</button>
 <button class="btn btn-sm btn-primary" type="button" (click)="onUpload()">Upload</button>
-<h1>Выбранные файлы</h1>
+
+<h5>Выбранные файлы</h5>
 <ul *ngFor="let f of selectedFile">
     <li>{{f.name}}</li>
 </ul>
+<div *ngIf="isLoading" class="spinner-border" role="status">
+    <span class="visually-hidden"></span>
+</div>
 <p>{{status}}</p>
